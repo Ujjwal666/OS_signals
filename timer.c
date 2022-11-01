@@ -1,3 +1,4 @@
+//Modified the code as per the feedback
 /* hello_signal.c */
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,29 +8,33 @@
 
 int count = 0;
 int sec = 0;
-bool check = true;
+bool check = false;
 void handler(int signum)
 { //signal handler
   printf("Hello World!\n");
-  printf("Turing was right!\n");
-  alarm(1); //exit after printing
+  check = true; //exit after printing
 }
 void sigintHandler(int sig_num)
 {
-  signal(SIGINT, sigintHandler);
   printf("\n %d no of alarms occured for %d seconds\n", count,sec);
-  check = false;
+  exit(1);
 }
 int main(int argc, char * argv[])
 {
-  while (check){
-    signal(SIGALRM,handler); //register handler to handle SIGALRM
-    alarm(1); //Schedule a SIGALRM for 1 second
-    sleep(1);
-    signal(SIGINT, sigintHandler);
-    count ++;
-    sec ++;
-  } //busy wait for signal to be delivered
+  signal(SIGALRM,handler); //register handler to handle SIGALRM
+  signal(SIGINT, sigintHandler);
+  alarm(1); //Schedule a SIGALRM for 1 second
+  while(1){
+    if (check){
+      printf("Turing was right!\n");
+      check = false;
+      alarm(1);
+      count ++;
+      sec ++;
+    }
+  }
+    
+    //busy wait for signal to be delivered
   
   return 0; //never reached
 }
